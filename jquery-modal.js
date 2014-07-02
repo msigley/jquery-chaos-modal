@@ -2,8 +2,11 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.2.0
+ * Version 1.3.0
  * Recent changes:
+ * - Added alwaysAtTop parameter to openModal and resizeModal function (1.3.0)
+ * - Implemented vertical positioning from current scroll position (1.3.0)
+ * - Fixed browser following the href of print and close links (1.3.0)
  * - Added image prerendering in modal content (1.2.0)
  * - Updated and fixed resizeModal function to work based off of the html element's width (1.2.0)
  * - Added image in link href support (1.2.0)
@@ -31,7 +34,7 @@
 	
 	$.fn.openModal = function( options ) {
 		//Default options
-		var defaults = { maskClose: true, maxWidth: 960, closeLink: true, printLink: false };
+		var defaults = { maskClose: true, maxWidth: 960, closeLink: true, printLink: false, alwaysAtTop: false };
 		options = $.extend({}, defaults, options);
 		
 		//Clone modal content
@@ -42,7 +45,8 @@
 			windowElement = $(window),
 			maskClose = options['maskClose'],
 			closeLink = options['closeLink'],
-			printLink = options['printLink'];
+			printLink = options['printLink'],
+			alwaysAtTop = options['alwaysAtTop'];
 			
 		//Update maxWidth
 		maxWidth = options['maxWidth'];
@@ -83,10 +87,7 @@
 	       	clone.hide();
 	       	
 	     	//Calculate the modal mask size and popup window position
-	     	clone.resizeModal();
-	     	
-	     	//Scroll to top of window
-	     	windowElement.scrollTop(0).scrollLeft(0);
+	     	clone.resizeModal( alwaysAtTop );
 	     	
 	     	//Mask transition effect    
 	        modalMask.fadeIn(1000);   
@@ -96,7 +97,7 @@
 	        clone.fadeIn(2000);
 	        
 	        //Bind the window resize event
-	        windowElement.bind('resize', resizeCurrentModal);
+	        windowElement.bind('resize', {'alwaysAtTop': alwaysAtTop}, resizeCurrentModal);
 	        
 	        //Bind the print link events if any close links exist
 	        if(clone.find('.print-link').length > 0) {
@@ -140,7 +141,7 @@
 		return this;
 	};
 	
-	$.fn.resizeModal = function() {
+	$.fn.resizeModal = function( alwaysAtTop ) {
 		var documentElement = $(document),
 			windowElement = $(window),
 			htmlElement = $('html'),
@@ -164,6 +165,17 @@
         if (modalTop < 0) { modalTop = 0; }
         if (modalLeft < 0) { modalLeft = 0; }
         
+        if( alwaysAtTop ) { 
+        	windowElement.scrollTop(0); //Scroll to top of window
+        } else {
+        	modalTop += windowElement.scrollTop(); 
+        	console.log(htmlElement.height());
+        	var spaceFromBottom = documentElement.height() - (modalTop + this.height());
+        	if( spaceFromBottom < 0 && modalTop + spaceFromBottom >= 0)
+        		modalTop += spaceFromBottom;
+        }
+        windowElement.scrollLeft(0);
+        
         //Set the popup window to center
         this.css({'top': modalTop, 'left': modalLeft});
         
@@ -174,15 +186,19 @@
 		window.print();
 	};
 	
-	function resizeCurrentModal() {
-		currentModal.resizeModal();
+	function resizeCurrentModal(e) {
+		var alwaysAtTop = false;
+		if( e.data.alwaysAtTop ) { alwaysAtTop = e.data.alwaysAtTop; }
+		currentModal.resizeModal( alwaysAtTop );
 	}
 	
-	function closeCurrentModal() {
+	function closeCurrentModal(e) {
+		e.preventDefault(); //Prevents browser from following links
 		currentModal.closeModal();
 	}
 	
-	function printCurrentModal() {
+	function printCurrentModal(e) {
+		e.preventDefault(); //Prevents browser from following links
 		currentModal.printModal();
 	}
 	function closeOnESC(e) {
