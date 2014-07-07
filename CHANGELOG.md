@@ -3,6 +3,7 @@ Change Log
 
 Recent changes
 --------------
+* Provided a minifed version of the script (1.3.2)
 * Moved Change Log to its own file to decrease the file size (1.3.2)
 * Fixed closeOnESC not passing its event to closeCurrentModal (1.3.1)
 * Fixed container styles on custom html (1.3.1)
