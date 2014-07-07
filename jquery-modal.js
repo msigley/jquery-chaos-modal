@@ -2,8 +2,11 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.3.0
+ * Version 1.3.1
  * Recent changes:
+ * - Fixed closeOnESC not passing its event to closeCurrentModal (1.3.1)
+ * - Fixed container styles on custom html (1.3.1)
+ * - Fixed improper class name on custom html containers (1.3.1)
  * - Added alwaysAtTop parameter to openModal and resizeModal function (1.3.0)
  * - Implemented vertical positioning from current scroll position (1.3.0)
  * - Fixed browser following the href of print and close links (1.3.0)
@@ -18,6 +21,7 @@
  * - Clones content container and appends to body for absolute positioning relative to body
  * - Added max width variable so you can keep modal content inside your wrapper div's width
  * Things left to do:
+ * -Add padding option to openModal
  * -Jquery animation queue integration
  * -Function parameters for changing the default CSS styles
  * -Change namespacing of functions to work similar to $('#example').modal("open")
@@ -76,8 +80,7 @@
         clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9001', 'left': '-10000px', 'margin': '0', 'padding': '0'});
         clone.appendTo(bodyElement);
         
-        //Show modal after all images have loaded
-        clone.find('img').last().on('load', function(e){
+        var showModal = function() {
         	//Lock popup window width
 	       	if(clone.width() > maxWidth){
 	       		clone.width(maxWidth);
@@ -114,7 +117,13 @@
 				modalMask.on('click', closeCurrentModal);
 				documentElement.on('keyup', closeOnESC);
 			}
-        });
+        };
+        
+        //Show modal after all images have loaded
+        var lastImage = clone.find('img').last();
+        if(lastImage.length) { lastImage.on('load', showModal); }
+        else { showModal(); }
+        
         clone.show();
         
         return this;
@@ -168,8 +177,7 @@
         if( alwaysAtTop ) { 
         	windowElement.scrollTop(0); //Scroll to top of window
         } else {
-        	modalTop += windowElement.scrollTop(); 
-        	console.log(htmlElement.height());
+        	modalTop += windowElement.scrollTop();
         	var spaceFromBottom = documentElement.height() - (modalTop + this.height());
         	if( spaceFromBottom < 0 && modalTop + spaceFromBottom >= 0)
         		modalTop += spaceFromBottom;
@@ -204,7 +212,7 @@
 	function closeOnESC(e) {
 		if( e.which == 27 ) {
 			$(this).off('keyup', closeOnESC);
-			closeCurrentModal();
+			closeCurrentModal(e);
 		}
 	}
 })( jQuery );
@@ -219,15 +227,16 @@ jQuery(document).ready(function($){
 		e.preventDefault(); //Prevents browser from following links
 		thisElement.off('click', processModalLink); //Remove content processing event. It should only be run once per link.
 		
-		var modalContent = thisElement.parent().find('.modal-box').first(),
+		var modalContent = thisElement.parent().find('.chaos-modal-box').first(),
 			modalContentClone = false,
 			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)$/i,
 			imageUrl = false;
 		
 		//Check for pre-defined modal content
 		if( modalContent.length ) {
-			modalContentClone = modalContent.clone();
-			modalContent.remove();
+			modalContentClone = $('<div></div>').css({'padding': '20px'});
+			modalContent.clone().appendTo(modalContentClone);
+			modalContentClone = $('<div></div>').css({'background': '#fff'}).append(modalContentClone);
 		} else {
 			if( imageRegex.test(thisElement.attr('href')) ) {
 				//Use link href as image url
