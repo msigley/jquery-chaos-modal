@@ -20,6 +20,7 @@ Recent changes
 * Reworked references to optimize javascript caching (1.1.0)
 * Clones content container and appends to body for absolute positioning relative to body
 * Added max width variable so you can keep modal content inside your wrapper div's width
+
 Things left to do
 -----------------
 * Add padding option to openModal
