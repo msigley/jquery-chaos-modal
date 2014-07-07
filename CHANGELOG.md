@@ -24,8 +24,11 @@ Recent changes
 
 Things left to do
 -----------------
-* Add padding option to openModal
-* Jquery animation queue integration
 * Function parameters for changing the default CSS styles
+	* Mask color
+	* Mask opacity
+	* Default padding
+	* Content background
+* Jquery animation queue integration
 * Change namespacing of functions to work similar to $('#example').modal("open")
 * Add position parameter to openModal function
