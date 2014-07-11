@@ -3,6 +3,7 @@ Change Log
 
 Recent changes
 --------------
+* Added handling of link class applied to a link's direct container (1.3.3)
 * Provided a minifed version of the script (1.3.2)
 * Moved Change Log to its own file to decrease the file size (1.3.2)
 * Fixed closeOnESC not passing its event to closeCurrentModal (1.3.1)
