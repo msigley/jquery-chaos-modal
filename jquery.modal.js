@@ -196,7 +196,19 @@
 
 /* Create modal box clones and click events */
 jQuery(document).ready(function($){
-	$('.chaos-modal-link').one('click', processModalLink);
+	//Fix css classes
+	$('.chaos-modal-link').not('a').each( function() {
+		var thisElement = $(this),
+			childElements = thisElement.children();
+		thisElement.removeClass('chaos-modal-link');
+		if( childElements.not('a').length )
+			return;
+		if( childElements.length == 1 )
+			childElements.addClass('chaos-modal-link');
+	});
+	
+	//Attach click event to links
+	$('a.chaos-modal-link').one('click', processModalLink);
 	
 	function processModalLink(e) {
 		var thisElement = $(this);
