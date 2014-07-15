@@ -18,6 +18,9 @@ Example Usage
 		<h1>jQuery Chaos Modal Examples</h1>
 		<h2>Image modals</h2>
 		<a href="test_image.png" class="chaos-modal-link"><img src="test_image.png" /></a>
+		<div class="chaos-modal-link">
+			<a href="test_image.png"><img src="test_image.png" /></a>
+		</div>
 		<h2>Html Content Modals</h2>
 		<div class="content-wrap">
 			<a href="#" class="chaos-modal-link">Click Here to open the modal</a>
