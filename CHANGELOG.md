@@ -3,6 +3,7 @@ Change Log
 
 Recent changes
 --------------
+* Corrected typo in JSON manifest (1.3.5)
 * Added manifest file for release on plugins.jquery.com (1.3.4)
 * Added handling of link class applied to a link's direct container (1.3.3)
 * Provided a minifed version of the script (1.3.2)
