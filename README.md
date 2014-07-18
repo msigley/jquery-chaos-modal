@@ -40,9 +40,9 @@ Features
 * Vertical scroll position retention to maintain the user's position on the webpage.
 * On-the-fly modal HTML generation. No preprocessing loops before the page is shown to the user.
 * Content type handling:
-** Image tags
-** Links to images
-** Inline HTML
+	* Image tags
+	* Links to images
+	* Inline HTML
 
 Wishlist
 --------
