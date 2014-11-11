@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.3.5
+ * Version 1.3.6
  */
 
 (function( $ ) {
@@ -39,7 +39,7 @@
 		//Write the mask div
 		var modalMask = $('<div id="chaos-modal-mask" class="chaos-modal-mask"></div>');
 		modalMask.css({'position': 'absolute', 'z-index': '9000', 'background-color': '#000', 'display': 'none', 'top': '0', 'left': '0'});
-		modalMask.appendTo(bodyElement);
+		modalMask.prependTo(bodyElement);
 		
 		//Write print link if none exist
 		if(clone.find('.print-link').length == 0 && printLink) {
@@ -55,7 +55,7 @@
                
         //Set the popup window css
         clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9001', 'left': '-10000px', 'margin': '0', 'padding': '0'});
-        clone.appendTo(bodyElement);
+        clone.prependTo(bodyElement);
         
         var showModal = function() {
         	//Lock popup window width
@@ -216,15 +216,21 @@ jQuery(document).ready(function($){
 		e.preventDefault(); //Prevents browser from following links
 		thisElement.off('click', processModalLink); //Remove content processing event. It should only be run once per link.
 		
-		var modalContent = thisElement.parent().find('.chaos-modal-box').first(),
+		var modalContentId = thisElement.data('chaos-modal-box-id'),
+			modalContent = false,
 			modalContentClone = false,
 			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)$/i,
 			imageUrl = false;
 		
+		if( modalContentId.length )
+			modalContent = $('#'+modalContentId).first();
+		else
+			modalContent = thisElement.parent().find('.chaos-modal-box').first();
+		
 		//Check for pre-defined modal content
 		if( modalContent.length ) {
 			modalContentClone = $('<div></div>').css({'padding': '20px'});
-			modalContent.clone().appendTo(modalContentClone);
+			modalContent.clone().show().appendTo(modalContentClone);
 			modalContentClone = $('<div></div>').css({'background': '#fff'}).append(modalContentClone);
 		} else {
 			if( imageRegex.test(thisElement.attr('href')) ) {
@@ -252,6 +258,8 @@ jQuery(document).ready(function($){
 		
 		//Setup openModal event if content is available
 		if( modalContentClone ) {
+			//Remove original content element to avoid id conflicts
+			modalContent.remove();
 			//Assign unique ids to each modal link and content
 			thisElement.attr({
 				href: '#',
