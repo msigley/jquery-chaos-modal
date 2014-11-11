@@ -3,6 +3,8 @@ Change Log
 
 Recent changes
 --------------
+* Added defining of modal content by id in data attribute (1.3.6)
+* Corrected clone content handling to better respect element ids (1.3.6)
 * Corrected typo in JSON manifest (1.3.5)
 * Added manifest file for release on plugins.jquery.com (1.3.4)
 * Added handling of link class applied to a link's direct container (1.3.3)
