@@ -28,6 +28,13 @@ Example Usage
 				All HTML in here is used as the modal's content.
 			</div>
 		</div>
+		<h2>Html Content ID Modals</h2>
+		<div class="content-wrap">
+			<a href="#" class="chaos-modal-link" data-chaos-modal-box-id="modal-content-id">Click Here to open the modal</a>
+		</div>
+		<div class="modal-content-id">
+			All HTML in here is used as the modal's content.
+		</div>
 	</body>
 </html>
 ```
@@ -43,6 +50,7 @@ Features
 	* Image tags
 	* Links to images
 	* Inline HTML
+	* Inline HTML defined by element id
 
 Wishlist
 --------
