@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.3.6
+ * Version 1.3.7
  */
 
 (function( $ ) {
@@ -64,6 +64,10 @@
 	       	} else {
 	       		clone.width(clone.width());
 	       	}
+	       	
+	       	//Fix content widths
+	       	clone.find('img').css('max-width', '100%'); 
+	       	
 	       	clone.hide();
 	       	
 	     	//Calculate the modal mask size and popup window position
@@ -116,7 +120,7 @@
 		//Unbind the close link events if any close links exist
         if(this.find('.close-link').length > 0) {
         	this.find('.close-link').unbind('click');
-        	}
+        }
 		
 		//Remove the popup window
 		this.hide().remove();
@@ -222,7 +226,7 @@ jQuery(document).ready(function($){
 			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)$/i,
 			imageUrl = false;
 		
-		if( modalContentId.length )
+		if( modalContentId )
 			modalContent = $('#'+modalContentId).first();
 		else
 			modalContent = thisElement.parent().find('.chaos-modal-box').first();

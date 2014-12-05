@@ -3,6 +3,8 @@ Change Log
 
 Recent changes
 --------------
+* Improve Image width handling (1.3.7)
+* Fixed bug related to undefined data attributes (1.3.7)
 * Added defining of modal content by id in data attribute (1.3.6)
 * Corrected clone content handling to better respect element ids (1.3.6)
 * Corrected typo in JSON manifest (1.3.5)
