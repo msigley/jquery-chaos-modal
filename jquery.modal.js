@@ -2,21 +2,30 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.3.7
+ * Version 1.3.8
  */
 
 (function( $ ) {
-	//Property to store the modal current being displayed
-	var currentModal,
-		maxWidth;
-	
-	//Global variable for generating modal box clones
+	//Global variables for generating modal box clones
+	$.chaosModalCurrent;
+	$.chaosModalMaxWidth;
 	$.chaosModalIndex = 0;
+	$.chaosModalImagesLoaded = false;
+	$.chaosModalIframesLoaded = false;
 	
 	$.fn.openModal = function( options ) {
 		//Default options
 		var defaults = { maskClose: true, maxWidth: 960, closeLink: true, printLink: false, alwaysAtTop: false };
 		options = $.extend({}, defaults, options);
+		
+		//Lazy Load iFrame content
+		function iframeDataSrc() {
+			var thisElement = $(this),
+				iframeDataSrc = thisElement.data('src');
+			if( iframeDataSrc )
+				thisElement.attr('src', iframeDataSrc);
+		}
+		this.find('iframe[src=""]').each(iframeDataSrc);
 		
 		//Clone modal content
 		var clone = this.clone(),
@@ -29,11 +38,11 @@
 			printLink = options['printLink'],
 			alwaysAtTop = options['alwaysAtTop'];
 			
-		//Update maxWidth
-		maxWidth = options['maxWidth'];
+		//Update $.chaosModalMaxWidth
+		$.chaosModalMaxWidth = options['maxWidth'];
 		
-		//Update currentModal
-		currentModal = clone;
+		//Update $.chaosModalCurrent
+		$.chaosModalCurrent = clone;
 		clone.attr({id: 'chaos-current-modal'});
 		
 		//Write the mask div
@@ -45,13 +54,13 @@
 		if(clone.find('.print-link').length == 0 && printLink) {
 			clone.prepend('<a class="print-link">Print</a>');
 			clone.children('.print-link').css({'float': 'right', 'margin': '5px'});
-			}
+		}
 		
 		//Write close link if none exist
 		if(clone.find('.close-link').length == 0 && closeLink) {
 			clone.prepend('<a class="close-link">Close</a>');
 			clone.children('.close-link').css({'float': 'right', 'margin': '5px'});
-			}
+		}
                
         //Set the popup window css
         clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9001', 'left': '-10000px', 'margin': '0', 'padding': '0'});
@@ -59,8 +68,8 @@
         
         var showModal = function() {
         	//Lock popup window width
-	       	if(clone.width() > maxWidth){
-	       		clone.width(maxWidth);
+	       	if(clone.width() > $.chaosModalMaxWidth){
+	       		clone.width($.chaosModalMaxWidth);
 	       	} else {
 	       		clone.width(clone.width());
 	       	}
@@ -86,12 +95,12 @@
 	        //Bind the print link events if any close links exist
 	        if(clone.find('.print-link').length > 0) {
 	        	clone.find('.print-link').bind('click', printCurrentModal);
-	        	}
+	        }
 	        
 	        //Bind the close link events if any close links exist
 	        if(clone.find('.close-link').length > 0) {
 	        	clone.find('.close-link').bind('click', closeCurrentModal);
-	        	}
+	         }
 	        
 	        //Bind close event to mask click and when the ESC key is pressed
 			if(maskClose) {
@@ -100,10 +109,26 @@
 			}
         };
         
-        //Show modal after all images have loaded
-        var lastImage = clone.find('img').last();
-        if(lastImage.length) { lastImage.on('load', showModal); }
-        else { showModal(); }
+        //Show modal after all images and iframes have loaded
+        var lastImage = clone.find('img').last(),
+        	lastIframe = clone.find('iframe').last();
+        $.chaosModalImagesLoaded = (lastImage.length) ? false : true;
+        $.chaosModalIframesLoaded = (lastIframe.length) ? false : true;
+        
+        if($.chaosModalImagesLoaded && $.chaosModalIframesLoaded)
+        	showModal();
+        else {
+        	lastImage.on('load', function() {
+        		$.chaosModalImagesLoaded = true;
+        		if($.chaosModalImagesLoaded && $.chaosModalIframesLoaded)
+        			showModal();
+        	});
+        	lastIframe.on('load', function() {
+        		$.chaosModalIframesLoaded = true;
+        		if($.chaosModalImagesLoaded && $.chaosModalIframesLoaded)
+        			showModal();
+        	});
+        }
         
         clone.show();
         
@@ -111,8 +136,8 @@
 	};
 	
 	$.fn.closeModal = function() {
-		//Clear currentModal
-		currentModal = null;
+		//Clear $.chaosModalCurrent
+		$.chaosModalCurrent = null;
 		
 		//Unbind the window resize event
 		$(window).unbind('resize', resizeCurrentModal);
@@ -178,17 +203,17 @@
 	function resizeCurrentModal(e) {
 		var alwaysAtTop = false;
 		if( e.data.alwaysAtTop ) { alwaysAtTop = e.data.alwaysAtTop; }
-		currentModal.resizeModal( alwaysAtTop );
+		$.chaosModalCurrent.resizeModal( alwaysAtTop );
 	}
 	
 	function closeCurrentModal(e) {
 		e.preventDefault(); //Prevents browser from following links
-		currentModal.closeModal();
+		$.chaosModalCurrent.closeModal();
 	}
 	
 	function printCurrentModal(e) {
 		e.preventDefault(); //Prevents browser from following links
-		currentModal.printModal();
+		$.chaosModalCurrent.printModal();
 	}
 	function closeOnESC(e) {
 		if( e.which == 27 ) {
@@ -213,6 +238,19 @@ jQuery(document).ready(function($){
 	
 	//Attach click event to links
 	$('a.chaos-modal-link').one('click', processModalLink);
+	
+	//Lazy Load iFrame content
+	function iframeDataSrc() {
+		var thisElement = $(this),
+			iframeSrc = thisElement.attr('src');
+		thisElement.attr('data-src', iframeSrc).attr('src', '');
+	}
+	$('.chaos-modal-box iframe').each(iframeDataSrc);
+	$('.chaos-modal-link').each(function() {
+		var modalContentId = $(this).data('chaos-modal-box-id');
+		if( modalContentId )
+			$('#'+modalContentId+' iframe').each(iframeDataSrc);
+	});
 	
 	function processModalLink(e) {
 		var thisElement = $(this);
