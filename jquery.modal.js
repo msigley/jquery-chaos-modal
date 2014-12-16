@@ -7,8 +7,8 @@
 
 (function( $ ) {
 	//Global variables for generating modal box clones
-	$.chaosModalCurrent;
-	$.chaosModalMaxWidth;
+	$.chaosModalCurrent = null;
+	$.chaosModalMaxWidth = 0;
 	$.chaosModalIndex = 0;
 	$.chaosModalImagesLoaded = false;
 	$.chaosModalIframesLoaded = false;
