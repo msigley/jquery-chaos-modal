@@ -245,11 +245,11 @@ jQuery(document).ready(function($){
 			iframeSrc = thisElement.attr('src');
 		thisElement.attr('data-src', iframeSrc).attr('src', '');
 	}
-	$('.chaos-modal-box iframe').each(iframeDataSrc);
+	$('.chaos-modal-box:hidden iframe').each(iframeDataSrc);
 	$('.chaos-modal-link').each(function() {
 		var modalContentId = $(this).data('chaos-modal-box-id');
 		if( modalContentId )
-			$('#'+modalContentId+' iframe').each(iframeDataSrc);
+			$('#'+modalContentId+':hidden iframe').each(iframeDataSrc);
 	});
 	
 	function processModalLink(e) {
