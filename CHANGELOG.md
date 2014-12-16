@@ -3,7 +3,10 @@ Change Log
 
 Recent changes
 --------------
-* Improve Image width handling (1.3.7)
+* Converted all global variables to jQuery properties (1.3.8)
+* Improved Iframe content handling (1.3.8)
+* Iframes inside of modal box content are now lazy loaded if the modal box content is hidden on the page (1.3.8)
+* Improved Image width handling (1.3.7)
 * Fixed bug related to undefined data attributes (1.3.7)
 * Added defining of modal content by id in data attribute (1.3.6)
 * Corrected clone content handling to better respect element ids (1.3.6)

@@ -51,6 +51,7 @@ Features
 	* Links to images
 	* Inline HTML
 	* Inline HTML defined by element id
+* Iframe lazy loading for iframes in hidden modal content to improve page load.
 
 Wishlist
 --------
