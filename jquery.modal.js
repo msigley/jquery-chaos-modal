@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.3.8
+ * Version 1.3.9
  */
 
 (function( $ ) {
@@ -23,7 +23,7 @@
 			var thisElement = $(this),
 				iframeDataSrc = thisElement.data('src');
 			if( iframeDataSrc )
-				thisElement.attr('src', iframeDataSrc);
+				thisElement.attr('src', iframeDataSrc).attr('data-src', '');
 		}
 		this.find('iframe[src=""]').each(iframeDataSrc);
 		
