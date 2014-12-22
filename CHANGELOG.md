@@ -3,6 +3,7 @@ Change Log
 
 Recent changes
 --------------
+* Fixed bug in iframe lazy load where data-src attribute was not being removed (1.3.9)
 * Converted all global variables to jQuery properties (1.3.8)
 * Improved Iframe content handling (1.3.8)
 * Iframes inside of modal box content are now lazy loaded if the modal box content is hidden on the page (1.3.8)
