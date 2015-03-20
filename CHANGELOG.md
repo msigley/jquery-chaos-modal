@@ -3,6 +3,9 @@ Change Log
 
 Recent changes
 --------------
+* Added support for JS events in modal content (1.3.10)
+* Fixed IE8 bug that caused the resize event to continuously fire during the show animation (1.3.10)
+* Fixed IE bug that prevented modal content from showing under certain conditions (1.3.10)
 * Fixed bug in iframe lazy load where data-src attribute was not being removed (1.3.9)
 * Converted all global variables to jQuery properties (1.3.8)
 * Improved Iframe content handling (1.3.8)
