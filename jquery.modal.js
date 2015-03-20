@@ -87,10 +87,10 @@
 	        modalMask.fadeTo("slow",0.8);
 	     	
 	        //transition effect
-	        clone.fadeIn(2000);
-	        
-	        //Bind the window resize event
-	        windowElement.bind('resize', {'alwaysAtTop': alwaysAtTop}, resizeCurrentModal);
+	        clone.fadeIn(2000, function() {
+	        	//Bind the window resize event
+	       		windowElement.bind('resize', {'alwaysAtTop': alwaysAtTop}, resizeCurrentModal);
+	        });
 	        
 	        //Bind the print link events if any close links exist
 	        if(clone.find('.print-link').length > 0) {
@@ -164,7 +164,7 @@
 			maskWidth = htmlElement.width(),
 			winH = windowElement.height(), //Get the window height and width
         	winW = windowElement.width();
-        	
+        
         //Check for invalid mask dimensions
         if(maskHeight < this.height()) { maskHeight = this.height(); }
         if(maskWidth < winW) { maskWidth = winW; }
