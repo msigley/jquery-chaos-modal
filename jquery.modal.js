@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.3.9
+ * Version 1.3.10
  */
 
 (function( $ ) {
@@ -28,7 +28,7 @@
 		this.find('iframe[src=""]').each(iframeDataSrc);
 		
 		//Clone modal content
-		var clone = this.clone(),
+		var clone = this.clone(true),
 			bodyElement = $('body'),
 			htmlElement =  $('html'),
 			documentElement = $(document),
@@ -272,7 +272,7 @@ jQuery(document).ready(function($){
 		//Check for pre-defined modal content
 		if( modalContent.length ) {
 			modalContentClone = $('<div></div>').css({'padding': '20px'});
-			modalContent.clone().show().appendTo(modalContentClone);
+			modalContent.clone(true).css({'display': 'block'}).appendTo(modalContentClone);
 			modalContentClone = $('<div></div>').css({'background': '#fff'}).append(modalContentClone);
 		} else {
 			if( imageRegex.test(thisElement.attr('href')) ) {
