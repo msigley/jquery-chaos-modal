@@ -43,7 +43,7 @@ Features
 --------
 
 * Stand alone JS file. No additional CSS file required.
-* Window resize handling for better performance responsive websites.
+* Window resize handling for better performance on responsive websites.
 * Vertical scroll position retention to maintain the user's position on the webpage.
 * On-the-fly modal HTML generation. No preprocessing loops before the page is shown to the user.
 * Content type handling:
