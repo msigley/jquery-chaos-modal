@@ -39,6 +39,37 @@ Example Usage
 </html>
 ```
 
+Events Usage
+----------------
+```html
+<html>
+	...
+	<!-- Put data-preprocess='true' on link of modal you wish to pre-process -->
+	<div class='chaos-modal-link' data-preprocess='true'>Link</div>
+	...
+</html>
+```
+
+```javascript
+var modal_links = $('.chaos-modal-link');
+
+//Runs on modal link selector before modal is displayed
+//Modal variable contains the modal associated with the modal link.
+modal_links.on('chaos-modal-preprocess', function( event, modal){
+
+	$(window).on('chaos-modal-preprocess-interrupt', function( event ){
+		//Event fires when modal/loading screen is closed.
+	});
+	
+	//If you do not want to pre-process every time, set data-preprocess to false
+	//When done pre-processing
+	$(this).attr('data-preprocess','false');
+	
+	//Preprocessing function MUST call openModal when preprocessing complete
+	modal.openModal();
+});
+```
+
 Features
 --------
 
@@ -53,6 +84,7 @@ Features
 	* Inline HTML defined by element id
 * Iframe lazy loading for iframes in hidden modal content to improve page load.
 * Internet Explorer support back to version 8.
+* Event support for pre-processing the modal content.
 
 Wishlist
 --------
