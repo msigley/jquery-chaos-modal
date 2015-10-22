@@ -3,6 +3,7 @@ Change Log
 
 Recent changes
 --------------
+* Fixed iframe security bug in IE (1.4.1)
 * Added JS events for pre-processing of modal content (1.4)
 * Improved image and iframe content loading (1.4)
 * Added support for JS events in modal content (1.3.10)
