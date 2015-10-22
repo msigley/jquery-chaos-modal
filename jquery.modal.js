@@ -149,10 +149,13 @@
 		};
 		
 		var isIframeNotLoaded = function( index, iframe ) {
+			if( IEVersion ) //Ignore Iframes in IE due to security restrictions.
+				return false;
 			if (!isVisible(iframe))
 		    	return false;
-				if ('complete' == iframe.contentDocument.readyState)
-		    	return false;
+			var iframeDocument = iframe.contentDocument || iframe.contentWindow.document
+			if ('complete' == iframeDocument.readyState)
+		    return false;
 			return true;
 		};
 
@@ -165,7 +168,6 @@
     if(!$.imagesToLoad && !$.iframesToLoad)
       showModal();
     else {
-
       images.on('load', function() {
         $.imagesToLoad -= 1;
         if(!$.imagesToLoad && !$.iframesToLoad)
