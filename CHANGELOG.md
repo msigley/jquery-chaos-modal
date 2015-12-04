@@ -3,6 +3,8 @@ Change Log
 
 Recent changes
 --------------
+* Added option to set maximum width on modals (1.4.2)
+* Added option to determine whether or not to print out default close link (1.4.2)
 * Fixed iframe security bug in IE (1.4.1)
 * Added JS events for pre-processing of modal content (1.4)
 * Improved image and iframe content loading (1.4)

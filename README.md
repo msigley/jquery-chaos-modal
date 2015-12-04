@@ -70,6 +70,21 @@ modal_links.on('chaos-modal-preprocess', function( event, modal){
 });
 ```
 
+Options Usage
+----------------
+Attach data attributes to the modal's link as so;
+
+```html
+<a class="chaos-modal-link" data-chaosmodal-max-width="710"> Link </a>
+
+```
+###Supported options:
+####data-chaosmodal-max-width : 
+Sets the maximum width of the modal
+####data-chaosmodal-close-link : 
+Sets whether or not to display default close link
+
+
 Features
 --------
 
@@ -85,9 +100,9 @@ Features
 * Iframe lazy loading for iframes in hidden modal content to improve page load.
 * Internet Explorer support back to version 8.
 * Event support for pre-processing the modal content.
+* Options for changing default behavior.
 
 Wishlist
 --------
 
 * Options for changing the CSS styles.
-* Options for changing the default behavior.
