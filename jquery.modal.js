@@ -456,6 +456,25 @@ jQuery(document).ready(function($){
 			modalContentClone.appendTo('body');
 			thisElement.click(function() {
 				$.fn.showLoading();
+				//Get options from modal-link
+				
+				var options = { maxWidth : 960,
+									 closeLink: true,
+									 printLink: false, 
+									 alwaysAtTop: false, 
+									 preprocessing: false };
+				
+				$.each(options, function(key, value){
+					if(typeof(thisElement.data('chaosmodal-'+key))!== 'undefined'){
+						console.log(typeof(thisElement.data('chaosmodal-'+key)));
+						if(key == 'maxWidth'){
+							options[key] = parseInt(thisElement.data('chaosmodal-'+key));
+						} else {
+							options[key] = (thisElement.data('chaosmodal-'+key) == 'true');
+						}
+					}
+				});
+
 				preprocess = thisElement.attr('data-preprocess');
 				var thisId = $(this).attr('id'),
 					indexRegex = /chaos-modal-link-(\d+)/i,
@@ -463,7 +482,7 @@ jQuery(document).ready(function($){
 				if( chaosModalIndex[1] ) {
 					var modalBox = $('#chaos-modal-box-'+chaosModalIndex[1]);
 					if( modalBox.length == 1 && preprocess != 'true' ) {
-						modalBox.openModal();
+						modalBox.openModal(options);
 					} else if (modalBox.length == 1 && preprocess == 'true'){
 						thisElement.trigger("chaos-modal-preprocess", modalBox);
 					}
