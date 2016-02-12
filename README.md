@@ -99,6 +99,7 @@ Features
 	* Inline HTML defined by element id
 * Iframe lazy loading for iframes in hidden modal content to improve page load.
 * Internet Explorer support back to version 8.
+* Microsoft Edge support.
 * Event support for pre-processing the modal content.
 * Options for changing default behavior.
 

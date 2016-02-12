@@ -3,6 +3,7 @@ Change Log
 
 Recent changes
 --------------
+* Fixed iframe security bug in MSEdge (1.5.0)
 * Added option to set maximum width on modals (1.4.2)
 * Added option to determine whether or not to print out default close link (1.4.2)
 * Fixed iframe security bug in IE (1.4.1)
