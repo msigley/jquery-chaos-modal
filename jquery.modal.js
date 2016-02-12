@@ -2,34 +2,39 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.4
+ * Version 1.5
  */
 
 (function( $ ) {
 
-	//Bowser IE version detection
-	function getIEVersion() {
+	//Bowser IE/Edge version detection
+	function getIEEdgeVersion() {
 		var ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
 		if( /msie|trident/i.test(ua) ) {
 			var match = ua.match(/(?:msie |rv:)(\d+(\.\d+)?)/i);
-    		return (match && match.length > 1 && match[1]) || '';
-    	}
-    	return '';
-    }
+    	return (match && match.length > 1 && match[1]) || '';
+    } else if( /chrome.+? edge/i.test(ua) ) {
+			var match = ua.match(/edge\/(\d+(\.\d+)?)/i);
+    	return (match && match.length > 1 && match[1]) || '';
+		}
+    return '';
+  }
 
 	var windowElement = $(window),
-		 IEVersion = '';
+		 IEEdgeVersion = '';
 	
 	if( bowser.msie )
-		IEVersion = bowser.version;
+		IEEdgeVersion = bowser.version;
+	else if( bowser.msedge )
+		IEEdgeVersion = bowser.version;
 	else
-		IEVersion = getIEVersion();
+		IEEdgeVersion = getIEEdgeVersion();
 	
 	//Detects images that are not visible
 	var isVisible = function( element ) {
 		if( element.offsetParent === null )
 			return false;
-		if( IEVersion < 11 ) {
+		if( IEEdgeVersion < 11 ) {
 			var computedDisplay = '';
 			if( typeof getComputedStyle != 'undefined' )
 				computedDisplay = window.getComputedStyle(element).display;
@@ -59,7 +64,6 @@
 		//Default options
 		var defaults = { maxWidth: 960, closeLink: true, printLink: false, alwaysAtTop: false, preprocessing: false };
 		    options  = $.extend({}, defaults, options);
-
 		//Lazy Load iFrame content
 		function iframeDataSrc() {
 			var thisElement = $(this),
@@ -149,7 +153,7 @@
 		};
 		
 		var isIframeNotLoaded = function( index, iframe ) {
-			if( IEVersion ) //Ignore Iframes in IE due to security restrictions.
+			if( IEEdgeVersion ) //Ignore Iframes in IE due to security restrictions.
 				return false;
 			if (!isVisible(iframe))
 		    	return false;
