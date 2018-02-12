@@ -75,19 +75,20 @@ Options Usage
 Attach data attributes to the modal's link as so;
 
 ```html
-<a class="chaos-modal-link" data-chaosmodal-max-width="710"> Link </a>
+<a class="chaos-modal-link" data-chaos-modal-max-width="710"> Link </a>
 
 ```
-###Supported options:
-####data-chaos-modal-max-width : 
+
+### Supported options:
+#### data-chaos-modal-max-width : 
 Sets the maximum width of the modal in pixels. Default 960.
-####data-chaos-modal-close-link : 
+#### data-chaos-modal-close-link : 
 Sets whether or not to display the default close link. Default true.
-####data-chaos-modal-print-link : 
+#### data-chaos-modal-print-link : 
 Sets whether or not to display the print link. Default false.
-####data-chaos-modal-click-passthrough : 
+#### data-chaos-modal-click-passthrough : 
 Sets whether or not to pass the value of the href attribute on the open modal link to a window.open call. This allows the model to be used for download prerolls. Default false.
-####data-chaos-modal-iframe-add-autoplay :
+#### data-chaos-modal-iframe-add-autoplay :
 Sets whether or not to add 'autoplay=1' to the query string an iframe in the modals content if the modal contains a single iframe. This is useful for video modals especially youtube videos. Default true.
 
 
