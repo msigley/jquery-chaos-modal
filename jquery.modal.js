@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.9.0
+ * Version 1.10.0
  */
 
 (function( $ ) {
@@ -477,7 +477,8 @@
 			modalContent = false,
 			modalContentClone = false,
 			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)$/i,
-			imageUrl = false;
+			imageUrl = false,
+			imageCaption = false;
 		
 		if( modalContentId )
 			modalContent = $('#'+modalContentId).first();
@@ -493,12 +494,18 @@
 			if( imageRegex.test(thisElement.attr('href')) ) {
 				//Use link href as image url
 				imageUrl = thisElement.attr('href');
+				//Use link title as image caption
+				imageCaption = thisElement.attr('title');
 			} else {
 				//Check for single image inside of modal link
 				var modalImage = thisElement.find('img');
 				if( modalImage.length == 1 ) {
-					if( imageRegex.test(modalImage.attr('src')) )
+					if( imageRegex.test(modalImage.attr('src')) ) {
+						//Use image src as image url
 						imageUrl = modalImage.attr('src');
+						//Use image title as image caption
+						imageCaption = modalImage.attr('title');
+					}
 				}
 			}
 			
@@ -506,6 +513,10 @@
 				modalContentClone = $('<div></div>').css({'padding': '20px'});
 				$('<img src="'+imageUrl+'" />').css({'display': 'block'}).appendTo(modalContentClone);
 				modalContentClone = $('<div></div>').css({'background': '#fff'}).append(modalContentClone);
+			}
+
+			if( imageCaption ) {
+				imageCaption = (imageCaption + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
 			}
 		}
 
@@ -538,7 +549,8 @@
 					alwaysAtTop: false, 
 					preprocessing: false,
 					clickPassthrough: false,
-					iframeAddAutoplay: true };
+					iframeAddAutoplay: true,
+					caption: imageCaption };
 				
 				$.each(options, function(key, value){
 					var optionData = thisElement.data('chaos-modal-'+key);
@@ -550,6 +562,19 @@
 						}
 					}
 				});
+
+				if( options.caption ) {
+					var modalCaption = $('<div>'+options.caption+'</div>').css({
+						'display': 'table-caption', 
+						'caption-side': 'bottom', 
+						'padding-top': 0,
+						'padding-right': '20px',
+						'padding-bottom': '20px',
+						'padding-left': '20px'
+					});
+					modalContentClone.children().first().css('display', 'table').append(modalCaption);
+					console.log(modalContentClone.clone());
+				}
 
 				if( options.clickPassthrough ) {
 					options.clickPassthrough = thisElement.data('chaos-modal-href');
@@ -567,7 +592,7 @@
 					if( modalBox.length == 1 && preprocess != 'true' ) {
 						modalBox.openModal(options);
 					} else if (modalBox.length == 1 && preprocess == 'true'){
-						thisElement.trigger("chaos-modal-preprocess", modalBox);
+						thisElement.trigger("chaos-modal-preprocess", [ modalBox, options ]);
 					}
 				}
 				return false;
