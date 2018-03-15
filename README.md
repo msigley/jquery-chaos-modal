@@ -89,7 +89,7 @@ Sets whether or not to display the print link. Default false.
 #### data-chaos-modal-click-passthrough : 
 Sets whether or not to pass the value of the href attribute on the open modal link to a window.open call. This allows the model to be used for download prerolls. Default false.
 #### data-chaos-modal-iframe-add-autoplay :
-Sets whether or not to add 'autoplay=1' to the query string an iframe in the modals content if the modal contains a single iframe. This is useful for video modals especially youtube videos. Default true.
+Sets whether or not to add 'autoplay=1' to the query string in the src and 'allow="autoplay"' of an iframe in the modals content if the modal contains a single iframe. This is useful for video modals especially youtube videos. Default true.
 #### data-chaos-modal-caption :
 Sets HTML content to use as a caption for the modal content. Default none, for image modals the value of the title attribute on the full image link.
 
