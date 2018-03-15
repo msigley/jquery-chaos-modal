@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.10.0
+ * Version 1.10.1
  */
 
 (function( $ ) {
@@ -128,6 +128,7 @@
 						iframeDataSrc += '&amp;';
 					}
 					iframeDataSrc += 'autoplay=1';
+					thisElement.attr('allow', 'autoplay');
 				}
 				thisElement.attr('src', iframeDataSrc).attr('data-src', '');
 			}
