@@ -93,6 +93,20 @@ Sets whether or not to add 'autoplay=1' to the query string in the src and 'allo
 #### data-chaos-modal-caption :
 Sets HTML content to use as a caption for the modal content. Default none, for image modals the value of the title attribute on the full image link.
 
+Galleries
+----------------
+Modals can be linked into galleries with next/prev buttons for traversing the gallery by adding the ```data-chaos-modal-gallery``` attribute to container elements that contain modal links.
+```html
+<div data-chaos-modal-gallery="gallery1">
+	Modal links in here are part of gallery1.
+</div>
+<div data-chaos-modal-gallery="gallery2">
+	Modal links in here are part of gallery2.
+</div>
+<div data-chaos-modal-gallery="gallery1">
+	Modal links in here are also part of gallery1.
+</div>
+```
 
 Features
 --------
