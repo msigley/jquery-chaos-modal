@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.10.1
+ * Version 1.11.0
  */
 
 (function( $ ) {
@@ -89,7 +89,9 @@
 			windowElement = $(window),
 			closeLink = options['closeLink'],
 			printLink = options['printLink'],
-			alwaysAtTop = options['alwaysAtTop'];
+			alwaysAtTop = options['alwaysAtTop'],
+			galleryPrevLink = options['galleryPrevLink'],
+			galleryNextLink = options['galleryNextLink'];
 		//Update $.chaosModalMaxWidth
 		$.chaosModalMaxWidth = options['maxWidth'];
 		
@@ -100,17 +102,23 @@
 
 		clone.attr({id: 'chaos-current-modal'});
 		
+		clone.prepend('<div style="clear: both;"></div>');
+
 		//Write print link if none exists
-		if(clone.find('.print-link').length == 0 && printLink) {
-			clone.prepend('<a class="print-link">Print</a>');
-			clone.children('.print-link').css({'float': 'right', 'margin': '5px'});
-		}
+		if(clone.find('.print-link').length == 0 && printLink)
+			clone.prepend('<a class="print-link" style="float: left; margin: 5px;">Print</a>');
 		
 		//Write close link if none exists
-		if(clone.find('.close-link').length == 0 && closeLink) {
-			clone.prepend('<a class="close-link">Close</a>');
-			clone.children('.close-link').css({'float': 'right', 'margin': '5px'});
-		}
+		if(clone.find('.close-link').length == 0 && closeLink)
+			clone.prepend('<a class="close-link" style="display: block; box-sizing: border-box; position: absolute; top: -1em; right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10006;</a>');
+
+		clone.append('<div style="clear: both;"></div>');
+
+		if(galleryPrevLink)
+			clone.append('<a class="prev-link" style="display: block; box-sizing: border-box; position: absolute; top: calc(50% - 1em); left: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10094;</a>');
+
+		if(galleryNextLink)
+			clone.append('<a class="next-link" style="display: block; box-sizing: border-box; position: absolute; top: calc(50% - 1em); right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10095;</a>');
 		
 		//Set the popup window css
 		clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9002', 'left': '-10000px', 'margin': '0', 'padding': '0'});
@@ -185,6 +193,16 @@
 			//Bind the close link events if any close links exist
 			if(clone.find('.close-link').length > 0) {
 				clone.find('.close-link').bind('click', closeCurrentModal);
+			}
+
+			//Bind the prev gallery link events if any prev gallery links exist
+			if(clone.find('.prev-link').length > 0) {
+				clone.find('.prev-link').bind('click', function() { galleryPrevLink.click(); });
+			}
+
+			//Bind the next gallery link events if any next gallery links exist
+			if(clone.find('.next-link').length > 0) {
+				clone.find('.next-link').bind('click', function() { galleryNextLink.click(); });
 			}
 			
 			if( options.clickPassthrough ) {
@@ -360,10 +378,12 @@
 	}
 
 	function closeCurrentModal(e) {
-		e.preventDefault(); //Prevents browser from following links
-		//Velocity control
-		if(Date.now() - $.openTime < 500){
-			return false;
+		if(e) {
+			e.preventDefault(); //Prevents browser from following links
+			//Velocity control
+			if(Date.now() - $.openTime < 500){
+				return false;
+			}
 		}
 
 		clearTimeout( $.chaosModalClickTimer );
@@ -465,7 +485,8 @@
 
 	//Closes the loading bar
 	$.fn.closeLoading = function(){
-		$.chaosModalLoading.remove();
+		if($.chaosModalLoading)
+			$.chaosModalLoading.remove();
 	}
 	
 	$.processModalLink = function(e) {
@@ -541,6 +562,7 @@
 			//Append hidden modal content to body
 			modalContentClone.appendTo('body');
 			thisElement.click(function() {
+				closeCurrentModal();
 				$.fn.showLoading();
 				
 				//Get options from modal-link
@@ -551,7 +573,9 @@
 					preprocessing: false,
 					clickPassthrough: false,
 					iframeAddAutoplay: true,
-					caption: imageCaption };
+					caption: imageCaption,
+					galleryPrevLink: false,
+					galleryNextLink: false };
 				
 				$.each(options, function(key, value){
 					var optionData = thisElement.data('chaos-modal-'+key);
@@ -563,6 +587,7 @@
 						}
 					}
 				});
+				console.log(options);
 
 				if( options.caption ) {
 					var modalCaption = $('<div>'+options.caption+'</div>').css({
@@ -574,7 +599,6 @@
 						'padding-left': '20px'
 					});
 					modalContentClone.children().first().css('display', 'table').append(modalCaption);
-					console.log(modalContentClone.clone());
 				}
 
 				if( options.clickPassthrough ) {
@@ -609,7 +633,7 @@
 /* Create modal box clones and click events */
 jQuery(document).ready(function($){
 	//Fix css classes
-	$('.chaos-modal-link').not('a').each( function() {
+	$('.chaos-modal-link').not('a').each(function() {
 		var thisElement = $(this),
 			childElements = thisElement.children();
 		thisElement.removeClass('chaos-modal-link');
@@ -619,6 +643,29 @@ jQuery(document).ready(function($){
 			childElements.addClass('chaos-modal-link');
 	});
 	
+	//Link gallery items
+	var modalGalleries = {};
+	$('[data-chaos-modal-gallery]').each(function() {
+		var thisElement = $(this),
+			galleryId = thisElement.data('chaos-modal-gallery');
+		if( ! ( galleryId in modalGalleries ) )
+			modalGalleries[galleryId] = [];
+		modalGalleries[galleryId].push(thisElement);
+	});
+
+	$.each(modalGalleries, function() {
+		var prevLink = false;
+		$.each(this, function() {
+			this.find('a.chaos-modal-link').each(function() {
+				var thisElement = $(this);
+				thisElement.data('chaos-modal-gallery-prev-link', prevLink);
+				if( prevLink )
+					prevLink.data('chaos-modal-gallery-next-link', thisElement);
+				prevLink = thisElement;
+			});
+		});
+	});
+
 	//Attach click event to links
 	$('a.chaos-modal-link').on('click', $.processModalLink);
 	
