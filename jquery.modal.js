@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.11.0
+ * Version 1.11.1
  */
 
 (function( $ ) {
@@ -339,6 +339,8 @@
 			if( spaceFromBottom < 0 && modalTop + spaceFromBottom >= 0)
 				modalTop += spaceFromBottom;
 		}
+
+		if (modalTop < 20) { modalTop = 20 };
 		windowElement.scrollLeft(0);
 
 		//Set the popup window to center
@@ -587,7 +589,6 @@
 						}
 					}
 				});
-				console.log(options);
 
 				if( options.caption ) {
 					var modalCaption = $('<div>'+options.caption+'</div>').css({
