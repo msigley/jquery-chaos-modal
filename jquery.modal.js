@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.11.1
+ * Version 1.11.2
  */
 
 (function( $ ) {
@@ -500,7 +500,7 @@
 		var modalContentId = thisElement.data('chaos-modal-box-id'),
 			modalContent = false,
 			modalContentClone = false,
-			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)$/i,
+			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)(\?.*)?$/i,
 			imageUrl = false,
 			imageCaption = false;
 		
