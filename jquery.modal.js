@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.11.2
+ * Version 1.12.0
  */
 
 (function( $ ) {
@@ -23,11 +23,14 @@
 	var windowElement = $(window),
 		IEEdgeVersion = '';
 	
-	if( bowser.msie )
-		IEEdgeVersion = bowser.version;
-	else if( bowser.msedge )
-		IEEdgeVersion = bowser.version;
-	else
+	if( typeof bowser != 'undefined' ) {
+		if( bowser.msie )
+			IEEdgeVersion = bowser.version;
+		else if( bowser.msedge )
+			IEEdgeVersion = bowser.version;
+	}
+	
+	if( IEEdgeVersion === '' )
 		IEEdgeVersion = getIEEdgeVersion();
 
 	//Fullscreen API polyfill
@@ -87,6 +90,7 @@
 			htmlElement = $('html'),
 			documentElement = $(document),
 			windowElement = $(window),
+			cssClass = options['cssClass'],
 			closeLink = options['closeLink'],
 			printLink = options['printLink'],
 			alwaysAtTop = options['alwaysAtTop'],
@@ -100,7 +104,7 @@
 
 		var printIframeContent = clone.html();
 
-		clone.attr({id: 'chaos-current-modal'});
+		clone.attr({id: 'chaos-current-modal', class: cssClass});
 		
 		clone.prepend('<div style="clear: both;"></div>');
 
@@ -569,6 +573,7 @@
 				
 				//Get options from modal-link
 				var options = { maxWidth : 960,
+					cssClass: false,
 					closeLink: true,
 					printLink: false, 
 					alwaysAtTop: false, 
