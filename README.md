@@ -82,6 +82,8 @@ Attach data attributes to the modal's link as so;
 ### Supported options:
 #### data-chaos-modal-max-width : 
 Sets the maximum width of the modal in pixels. Default 960.
+#### data-chaos-modal-css-class : 
+Sets the css class attribute on the current modal div. Default false.
 #### data-chaos-modal-close-link : 
 Sets whether or not to display the default close link. Default true.
 #### data-chaos-modal-print-link : 
