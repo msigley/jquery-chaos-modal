@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.12.0
+ * Version 1.12.2
  */
 
 (function( $ ) {
@@ -96,6 +96,7 @@
 			alwaysAtTop = options['alwaysAtTop'],
 			galleryPrevLink = options['galleryPrevLink'],
 			galleryNextLink = options['galleryNextLink'];
+			galleryLinkAreas = options['galleryLinkAreas'];
 		//Update $.chaosModalMaxWidth
 		$.chaosModalMaxWidth = options['maxWidth'];
 		
@@ -109,21 +110,27 @@
 		clone.prepend('<div style="clear: both;"></div>');
 
 		//Write print link if none exists
-		if(clone.find('.print-link').length == 0 && printLink)
+		if(printLink)
 			clone.prepend('<a class="print-link" style="float: left; margin: 5px;">Print</a>');
 		
 		//Write close link if none exists
-		if(clone.find('.close-link').length == 0 && closeLink)
-			clone.prepend('<a class="close-link" style="display: block; box-sizing: border-box; position: absolute; top: -1em; right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10006;</a>');
+		if(closeLink)
+			clone.prepend('<a class="close-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: -1em; right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10006;</a>');
 
 		clone.append('<div style="clear: both;"></div>');
 
-		if(galleryPrevLink)
-			clone.append('<a class="prev-link" style="display: block; box-sizing: border-box; position: absolute; top: calc(50% - 1em); left: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10094;</a>');
+		if(galleryPrevLink) {
+			clone.append('<a class="prev-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: calc(50% - 1em); left: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10094;</a>');
+			if(galleryLinkAreas)
+				clone.append('<a class="prev-link area" style="display: block; position: absolute; top: 0; left: 0; width: 20%; height: 100%;"></a>');
+		}
 
-		if(galleryNextLink)
-			clone.append('<a class="next-link" style="display: block; box-sizing: border-box; position: absolute; top: calc(50% - 1em); right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10095;</a>');
-		
+		if(galleryNextLink) {
+			clone.append('<a class="next-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: calc(50% - 1em); right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10095;</a>');
+			if(galleryLinkAreas)
+				clone.append('<a class="next-link area" style="display: block; position: absolute; top: 0; right: 0; width: 80%; height: 100%;"></a>');
+		}
+
 		//Set the popup window css
 		clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9002', 'left': '-10000px', 'margin': '0', 'padding': '0'});
 		
@@ -385,7 +392,6 @@
 
 	function closeCurrentModal(e) {
 		if(e) {
-			e.preventDefault(); //Prevents browser from following links
 			//Velocity control
 			if(Date.now() - $.openTime < 500){
 				return false;
@@ -504,7 +510,7 @@
 		var modalContentId = thisElement.data('chaos-modal-box-id'),
 			modalContent = false,
 			modalContentClone = false,
-			imageRegex = /\.(jpeg|jpg|gif|png|bmp|wbmp)(\?.*)?$/i,
+			imageRegex = /(^data:image\/[a-z0-9+\/=]*,)|(\.(jp(e|g|eg)|gif|png|bmp|wbmp|webp|svg|ico)((\?|#).*)?$)/i,
 			imageUrl = false,
 			imageCaption = false;
 		
@@ -539,8 +545,9 @@
 			
 			if( imageUrl ) {
 				modalContentClone = $('<div></div>').css({'padding': '20px'});
-				$('<img src="'+imageUrl+'" />').css({'display': 'block'}).appendTo(modalContentClone);
+				$('<img src="'+imageUrl+'" />').css({'display': 'block', 'max-height': 'calc(80vh - 40px)' }).appendTo(modalContentClone);
 				modalContentClone = $('<div></div>').css({'background': '#fff'}).append(modalContentClone);
+				thisElement.data('chaos-modal-gallery-link-areas', true);
 			}
 
 			if( imageCaption ) {
@@ -582,7 +589,8 @@
 					iframeAddAutoplay: true,
 					caption: imageCaption,
 					galleryPrevLink: false,
-					galleryNextLink: false };
+					galleryNextLink: false,
+					galleryLinkAreas: false };
 				
 				$.each(options, function(key, value){
 					var optionData = thisElement.data('chaos-modal-'+key);
@@ -597,12 +605,15 @@
 
 				if( options.caption ) {
 					var modalCaption = $('<div>'+options.caption+'</div>').css({
+						'position': 'relative',
+						'z-index': 9,
 						'display': 'table-caption', 
 						'caption-side': 'bottom', 
 						'padding-top': 0,
 						'padding-right': '20px',
 						'padding-bottom': '20px',
-						'padding-left': '20px'
+						'padding-left': '20px',
+						'background': '#fff'
 					});
 					modalContentClone.children().first().css('display', 'table').append(modalCaption);
 				}
