@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.12.2
+ * Version 1.12.3
  */
 
 (function( $ ) {
@@ -552,6 +552,7 @@
 
 			if( imageCaption ) {
 				imageCaption = (imageCaption + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
+				thisElement.data('chaos-modal-caption', imageCaption);
 			}
 		}
 
@@ -587,7 +588,7 @@
 					preprocessing: false,
 					clickPassthrough: false,
 					iframeAddAutoplay: true,
-					caption: imageCaption,
+					caption: false,
 					galleryPrevLink: false,
 					galleryNextLink: false,
 					galleryLinkAreas: false };
@@ -616,6 +617,7 @@
 						'background': '#fff'
 					});
 					modalContentClone.children().first().css('display', 'table').append(modalCaption);
+					thisElement.data('chaos-modal-caption', '');
 				}
 
 				if( options.clickPassthrough ) {
