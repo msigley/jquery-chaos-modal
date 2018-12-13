@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.12.3
+ * Version 1.12.4
  */
 
 (function( $ ) {
@@ -550,7 +550,7 @@
 				thisElement.data('chaos-modal-gallery-link-areas', true);
 			}
 
-			if( imageCaption ) {
+			if( imageCaption && !thisElement.data('chaos-modal-caption') ) {
 				imageCaption = (imageCaption + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
 				thisElement.data('chaos-modal-caption', imageCaption);
 			}
