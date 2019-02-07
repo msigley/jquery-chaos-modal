@@ -36,13 +36,13 @@
 	//Fullscreen API polyfill
 	$.chaosModalExitFullscreen = function() {
 		if( 'fullscreenEnabled' in document )
-			document.exitFullscreen();
+			document.exitFullscreen().then({});
 		else if( 'webkitFullscreenEnabled' in document )
-			document.webkitExitFullscreen();
+			document.webkitExitFullscreen().then({});
 		else if( 'mozFullScreenEnabled' in document )
-			document.mozCancelFullScreen();
+			document.mozCancelFullScreen().then({});
 		else if( 'msExitFullscreen' in document )
-			document.msExitFullscreen();
+			document.msExitFullscreen().then({});
 	};
 	
 	//Detects images that are not visible
