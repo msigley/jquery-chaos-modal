@@ -35,14 +35,17 @@
 
 	//Fullscreen API polyfill
 	$.chaosModalExitFullscreen = function() {
+		var promise;
 		if( 'fullscreenEnabled' in document )
-			document.exitFullscreen().then({});
+			promise = document.exitFullscreen();
 		else if( 'webkitFullscreenEnabled' in document )
-			document.webkitExitFullscreen().then({});
+			promise = document.webkitExitFullscreen();
 		else if( 'mozFullScreenEnabled' in document )
-			document.mozCancelFullScreen().then({});
+			promise = document.mozCancelFullScreen();
 		else if( 'msExitFullscreen' in document )
-			document.msExitFullscreen().then({});
+			promise = document.msExitFullscreen();
+
+		if( promise && promise instanceof Promise ) promise.then({});
 	};
 	
 	//Detects images that are not visible
