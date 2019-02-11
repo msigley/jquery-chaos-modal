@@ -2,7 +2,7 @@
  * jQuery Chaos Modal
  * By Matthew Sigley
  * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.12.5
+ * Version 1.12.6
  */
 
 (function( $ ) {
@@ -35,6 +35,12 @@
 
 	//Fullscreen API polyfill
 	$.chaosModalExitFullscreen = function() {
+		if( !document.fullscreenElement 
+			&& !document.webkitFullscreenElement 
+			&& !document.mozFullScreenElement 
+			&& !document.msFullscreenElement )
+			return;
+		
 		var promise;
 		if( 'fullscreenEnabled' in document )
 			promise = document.exitFullscreen();
