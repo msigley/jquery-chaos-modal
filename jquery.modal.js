@@ -1,8 +1,7 @@
 /*
  * jQuery Chaos Modal
  * By Matthew Sigley
- * Based on concept work by Kevin Liew - http://www.queness.com/post/77/simple-jquery-modal-window-tutorial
- * Version 1.12.6
+ * Version 1.13.2
  */
 
 (function( $ ) {
@@ -80,6 +79,7 @@
 	$.chaosModalIndex = 0;
 	$.chaosModalImagesLoaded = false;
 	$.chaosModalIframesLoaded = false;
+	$.chaosModalVideosLoaded = false;
 	$.chaosModalClickTimer = false;
 	$.chaosModalResizeTimer = null;
 	$.chaosModalPrintCSSElements = null;
@@ -143,6 +143,25 @@
 		//Set the popup window css
 		clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9002', 'left': '-10000px', 'margin': '0', 'padding': '0'});
 		
+		var cloneImages = clone.find('img[loading="lazy"]');
+		
+		// Lazy Load Image content
+		function loadImage() {
+			this.loading = 'eager';
+			if( this.src )
+				this.src = this.src;
+			if( this.srcset )
+				this.srcset = this.srcset;
+		}
+
+		cloneImages.each(loadImage);
+
+		var cloneIframes = clone.find('iframe[src=""]'),
+			cloneVideos = clone.find('video');
+		
+		if( cloneIframes.length + cloneVideos.length > 1 )
+			options.iframeAddAutoplay = false;
+
 		//Lazy Load iFrame content
 		function iframeDataSrc() {
 			var thisElement = $(this),
@@ -161,11 +180,20 @@
 				thisElement.attr('src', iframeDataSrc).attr('data-src', '');
 			}
 		}
-		var cloneIframes = clone.find('iframe[src=""]');
-		if( cloneIframes.length > 1 )
-			options.iframeAddAutoplay = false;
-		cloneIframes.each(iframeDataSrc);
 		
+		cloneIframes.each(iframeDataSrc);
+
+		//Lazy Load video content
+		function videoDataSrc() {
+			var thisElement = $(this),
+				videoDataSrc = thisElement.data('src');
+			if( videoDataSrc ) {
+				thisElement.attr('src', videoDataSrc).attr('data-src', '');
+			}
+		}
+		
+		cloneVideos.each(videoDataSrc);
+		cloneVideos.css({'position': 'relative', 'z-index': '9'});
 		clone.prependTo(bodyElement);
 		
 		//Write hidden iframe for print support if none exists
@@ -207,27 +235,27 @@
 			
 			//Bind the print link events if any close links exist
 			if(clone.find('.print-link').length > 0) {
-				clone.find('.print-link').bind('click', printCurrentModal);
+				clone.find('.print-link').on('click', printCurrentModal);
 			}
 			
 			//Bind the close link events if any close links exist
 			if(clone.find('.close-link').length > 0) {
-				clone.find('.close-link').bind('click', closeCurrentModal);
+				clone.find('.close-link').on('click', closeCurrentModal);
 			}
 
 			//Bind the prev gallery link events if any prev gallery links exist
 			if(clone.find('.prev-link').length > 0) {
-				clone.find('.prev-link').bind('click', function() { galleryPrevLink.click(); });
+				clone.find('.prev-link').on('click', function() { galleryPrevLink.click(); });
 			}
 
 			//Bind the next gallery link events if any next gallery links exist
 			if(clone.find('.next-link').length > 0) {
-				clone.find('.next-link').bind('click', function() { galleryNextLink.click(); });
+				clone.find('.next-link').on('click', function() { galleryNextLink.click(); });
 			}
 			
 			if( options.clickPassthrough ) {
 				//Bind the fallback link events if any fallback links exist
-				clone.find('.fallback-link').bind('click', function() {
+				clone.find('.fallback-link').on('click', function() {
 					clearTimeout( $.chaosModalClickTimer );
 				});
 			}
@@ -237,7 +265,7 @@
 			clone.show(0, function() {
 				//Bind the window resize event
 				clone.resizeModal( alwaysAtTop );
-				windowElement.bind('resize', {'alwaysAtTop': alwaysAtTop}, resizeCurrentModalEvent);
+				windowElement.on('resize', {'alwaysAtTop': alwaysAtTop}, resizeCurrentModalEvent);
 				$.fn.closeLoading();
 
 				if( options.clickPassthrough ) {
@@ -276,23 +304,40 @@
 			return true;
 		};
 
+		var isVideoNotLoaded = function( index, video ) {
+			if (!$.chaosModalIsVisible(video))
+				return false;
+			if ( (video.readyState > 2 && video.getAttribute('src') != "")
+				&& (typeof video.videoWidth == "undefined" || video.videoWidth != 0) )
+				return false;
+			video.load();
+			return true;
+		};
+
 		//Show modal after all images and iframes have loaded
 		var images = clone.find('img').filter(isImageNotLoaded),
-			iframes = clone.find('iframe').filter(isIframeNotLoaded);
+			iframes = clone.find('iframe').filter(isIframeNotLoaded),
+			videos = clone.find('video').filter(isVideoNotLoaded);
 		$.imagesToLoad = images.length;
 		$.iframesToLoad = iframes.length;
+		$.videosToLoad = videos.length;
 
-		if(!$.imagesToLoad && !$.iframesToLoad)
+		if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
 			showModal();
 		else {
 			images.on('load', function() {
 				$.imagesToLoad -= 1;
-				if(!$.imagesToLoad && !$.iframesToLoad)
+				if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
 					showModal();
 			});
 			iframes.on('load', function() {
 				$.iframesToLoad -= 1;
-				if(!$.imagesToLoad && !$.iframesToLoad)
+				if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
+					showModal();
+			});
+			videos.on('canplay', function() {
+				$.videosToLoad -= 1;
+				if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
 					showModal();
 			});
 		}
@@ -305,13 +350,13 @@
 	$.fn.closeModal = function() {
 		//Unbind the window resize event
 		clearTimeout($.chaosModalResizeTimer);
-		$(window).unbind('resize', resizeCurrentModalEvent);
+		$(window).off('resize', resizeCurrentModalEvent);
 		//Clear $.chaosModalCurrent
 		$.chaosModalCurrent = null;
 		
 		//Unbind the close link events if any close links exist
 		if(this.find('.close-link').length > 0) {
-			this.find('.close-link').unbind('click');
+			this.find('.close-link').off('click');
 		}
 		
 		//Remove the popup window
@@ -481,7 +526,7 @@
 		$.chaosModalLoading.css('top', posy);
 		$.chaosModalLoading.css('left', posx);
 		var alwaysAtTop = true;
-		windowElement.bind('resize', {'alwaysAtTop': alwaysAtTop}, resizeLoading);	
+		windowElement.on('resize', {'alwaysAtTop': alwaysAtTop}, resizeLoading);	
 	}
 
 	function resizeLoading(){
@@ -520,8 +565,9 @@
 			modalContent = false,
 			modalContentClone = false,
 			imageRegex = /(^data:image\/[a-z0-9+\/=]*,)|(\.(jp(e|g|eg)|gif|png|bmp|wbmp|webp|svg|ico)((\?|#).*)?$)/i,
-			imageUrl = false,
-			imageCaption = false;
+			videoRegex = /(\.(mp4)((\?|#).*)?$)/i,
+			media = false,
+			mediaCaption = false;
 		
 		if( modalContentId )
 			modalContent = $('#'+modalContentId).first();
@@ -536,31 +582,52 @@
 		} else {
 			if( imageRegex.test(thisElement.attr('href')) ) {
 				//Use link href as image url
-				imageUrl = thisElement.attr('href');
+				media = $('<img loading="lazy" src="'+thisElement.attr('href')+'" />');
 				//Use link title as image caption
-				imageCaption = thisElement.attr('title');
-			} else {
+				mediaCaption = thisElement.attr('title');
+			} else if( videoRegex.test(thisElement.attr('href')) ) {
+				//Use link href as video url
+				media = $('<video src="'+thisElement.attr('href')+'" controls />');
+				//Use link title as video caption
+				mediaCaption = thisElement.attr('title');
+			}
+
+			if( !media ) {
 				//Check for single image inside of modal link
 				var modalImage = thisElement.find('img');
 				if( modalImage.length == 1 ) {
 					if( imageRegex.test(modalImage.attr('src')) ) {
 						//Use image src as image url
-						imageUrl = modalImage.attr('src');
+						media = $('<img loading="lazy" src="'+modalImage.attr('src')+'" />');
 						//Use image title as image caption
-						imageCaption = modalImage.attr('title');
+						mediaCaption = modalImage.attr('title');
 					}
 				}
 			}
+
+			if( !media ) {
+				//Check for single video inside of modal link
+				var modalVideo = thisElement.find('video');
+				if( modalVideo.length == 1 ) {
+					if( imageRegex.test(modalVideo.attr('src')) ) {
+						//Use video src as video url
+						media = $('<video src="'+modalVideo.attr('src')+'" controls />');
+						//Use video title as video caption
+						mediaCaption = modalVideo.attr('title');
+					}
+				}
+			}
+
 			
-			if( imageUrl ) {
+			if( media ) {
 				modalContentClone = $('<div></div>').css({'padding': '20px'});
-				$('<img src="'+imageUrl+'" />').css({'display': 'block', 'max-height': 'calc(80vh - 40px)' }).appendTo(modalContentClone);
+				media.css({'display': 'block', 'max-height': 'calc(80vh - 40px)' }).appendTo(modalContentClone);
 				modalContentClone = $('<div></div>').css({'background': '#fff'}).append(modalContentClone);
 				thisElement.data('chaos-modal-gallery-link-areas', true);
 			}
 
-			if( imageCaption && !thisElement.data('chaos-modal-caption') ) {
-				imageCaption = (imageCaption + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
+			if( mediaCaption && !thisElement.data('chaos-modal-caption') ) {
+				mediaCaption = (mediaCaption + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br />$2');
 				thisElement.data('chaos-modal-caption', imageCaption);
 			}
 		}
@@ -710,12 +777,4 @@ jQuery(document).ready(function($){
 		if( modalContentId )
 			$('#'+modalContentId+':hidden iframe').each(iframeDataSrc);
 	});
-	
-	//Polyfill for Date.now()
-	//This provides support for IE < 9
-	if(!Date.now){
-		Date.now = function now(){
-			return new Date().getTime();
-		};
-	}
 });
