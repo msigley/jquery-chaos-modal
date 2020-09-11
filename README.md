@@ -32,7 +32,7 @@ Example Usage
 		<div class="content-wrap">
 			<a href="#" class="chaos-modal-link" data-chaos-modal-box-id="modal-content-id">Click Here to open the modal</a>
 		</div>
-		<div class="modal-content-id">
+		<div id="modal-content-id">
 			All HTML in here is used as the modal's content.
 		</div>
 	</body>
