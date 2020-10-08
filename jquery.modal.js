@@ -1,7 +1,7 @@
 /*
  * jQuery Chaos Modal
  * By Matthew Sigley
- * Version 1.13.2
+ * Version 1.14.0
  */
 
 (function( $ ) {
@@ -76,6 +76,7 @@
 	$.modalMask = null;
 	$.chaosModalCurrent = null;
 	$.chaosModalMaxWidth = 0;
+	$.chaosModalZIndex = 100000;
 	$.chaosModalIndex = 0;
 	$.chaosModalImagesLoaded = false;
 	$.chaosModalIframesLoaded = false;
@@ -141,7 +142,7 @@
 		}
 
 		//Set the popup window css
-		clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': '9002', 'left': '-10000px', 'margin': '0', 'padding': '0'});
+		clone.css({'display': 'block', 'position': 'absolute', 'background': '#fff', 'z-index': $.chaosModalZIndex + 2, 'left': '-1000000px', 'margin': '0', 'padding': '0'});
 		
 		var cloneImages = clone.find('img[loading="lazy"]');
 		
@@ -225,7 +226,7 @@
 			}
 			
 			//Fix content widths
-			clone.css('max-width', '92%');
+			clone.css('max-width', '80%');
 			clone.find('img').css('max-width', '100%'); 
 			
 			clone.hide();
@@ -372,44 +373,40 @@
 	$.fn.resizeModal = function( alwaysAtTop ) {
 		var documentElement = $(document),
 			windowElement = $(window),
-			htmlElement = $('html'),
-			maskHeight = documentElement.height(), //Get the screen height and width
-			maskWidth = htmlElement.width(),
 			winH = windowElement.height(), //Get the window height and width
 			winW = windowElement.width();
-		
+
 		//Resize iframes (if jquery.iframe-wrapper.js is present)
-		if($.isFunction( this.resizeIframes )) { this.resizeIframes(); }
-
-		//Check for invalid mask dimensions
-		if(maskHeight < this.height()) { maskHeight = this.height(); }
-		if(maskWidth < winW) { maskWidth = winW; }
-
-		//Set height and width to mask to fill up the whole screen
-		$('#chaos-modal-mask').css({'width':maskWidth,'height':maskHeight});
+		if( $.isFunction( this.resizeIframes ) ) { this.resizeIframes(); }
 
 		//Calculate popup window position
-		var modalTop = winH/2-this.height()/2,
-			modalLeft = winW/2-this.width()/2;
+		var modalTop = winH/2-this.outerHeight()/2,
+			minModalSpace = Math.min( winW * 0.1, winH * 0.1 );
 
 		//Check for invalid window positions
-		if (modalTop < 0) { modalTop = 0; }
-		if (modalLeft < 0) { modalLeft = 0; }
+		if( modalTop < 0 ) { modalTop = minModalSpace; }
 
-		if( alwaysAtTop ) { 
-			windowElement.scrollTop(0); //Scroll to top of window
-		} else {
-			modalTop += windowElement.scrollTop();
-			var spaceFromBottom = documentElement.height() - (modalTop + this.height());
-			if( spaceFromBottom < 0 && modalTop + spaceFromBottom >= 0)
-				modalTop += spaceFromBottom;
-		}
+		// Scroll to top of window if alwaysAtTop is set
+		if( alwaysAtTop )
+			windowElement.scrollTop( 0 );
 
-		if (modalTop < 20) { modalTop = 20 };
-		windowElement.scrollLeft(0);
+		modalTop += windowElement.scrollTop();
+
+		// Prevent modal from overflowing body if possible
+		var spaceFromBottom = documentElement.height() - minModalSpace - ( modalTop + this.outerHeight() );
+		if( spaceFromBottom < 0 )
+			modalTop += spaceFromBottom;
+
+		//Check for invalid window positions
+		if( modalTop < minModalSpace ) { modalTop = minModalSpace };
+
+		//Scroll modal into view
+		windowElement.scrollLeft( 0 );
+		if( windowElement.scrollTop() > modalTop - minModalSpace )
+			windowElement.scrollTop( modalTop - minModalSpace );
 
 		//Set the popup window to center
-		this.css({'top': modalTop, 'left': modalLeft});
+		this.css({ 'top': modalTop, 'left': '50%', 'transform': 'translate(-50%,0)' });
 
 		return this;
 	};
@@ -489,7 +486,7 @@
 			maskClose = true;
 		//Create mask div
 		$.modalMask = $('<div id="chaos-modal-mask" class="chaos-modal-mask"></div>');
-		$.modalMask.css({'position': 'absolute', 'z-index': '9000', 'background-color': 'rgba(0, 0, 0, 0.8)', 'display': 'none', 'top': '0', 'left': '0'});
+		$.modalMask.css({'position': 'fixed', 'z-index': $.chaosModalZIndex, 'background-color': 'rgba(0, 0, 0, 0.5)', 'display': 'none', 'top': '0', 'left': '0', 'width': '100%', 'height': '100%'});
 		
 		$.modalMask.prependTo(bodyElement);
 
@@ -516,7 +513,7 @@
 		$('#chaos-modal-mask').css({'width':maskWidth,'height':maskHeight});
 
 		//Sets positioning for the loading bar
-		$('body').append('<div id="modal-loading" style="position: fixed; z-index: 9001; color: #fff;">Loading</div>');
+		$('body').append('<div id="modal-loading" style="position: fixed; z-index: ' + ( $.chaosModalZIndex + 1 ) + '; color: #fff;">Loading</div>');
 		
 		//Center Loading
 		posx = (winW / 2) - parseInt($('#modal-loading').css('width')) / 2;
