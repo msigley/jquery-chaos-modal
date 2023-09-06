@@ -1,37 +1,10 @@
 /*
  * jQuery Chaos Modal
  * By Matthew Sigley
- * Version 1.14.0
+ * Version 1.16.0
  */
 
 (function( $ ) {
-
-	//Bowser IE/Edge version detection
-	var getIEEdgeVersion = function() {
-		var ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-		if( /msie|trident/i.test(ua) ) {
-			var match = ua.match(/(?:msie |rv:)(\d+(\.\d+)?)/i);
-			return (match && match.length > 1 && match[1]) || '';
-		} else if( /chrome.+? edge/i.test(ua) ) {
-			var match = ua.match(/edge\/(\d+(\.\d+)?)/i);
-			return (match && match.length > 1 && match[1]) || '';
-		}
-		return '';
-	}
-
-	var windowElement = $(window),
-		IEEdgeVersion = '';
-	
-	if( typeof bowser != 'undefined' ) {
-		if( bowser.msie )
-			IEEdgeVersion = bowser.version;
-		else if( bowser.msedge )
-			IEEdgeVersion = bowser.version;
-	}
-	
-	if( IEEdgeVersion === '' )
-		IEEdgeVersion = getIEEdgeVersion();
-
 	//Fullscreen API polyfill
 	$.chaosModalExitFullscreen = function() {
 		if( !document.fullscreenElement 
@@ -57,16 +30,6 @@
 	$.chaosModalIsVisible = function( element ) {
 		if( element.offsetParent === null )
 			return false;
-		// This provides support for IE < 11
-		if( IEEdgeVersion < 11 ) {
-			var computedDisplay = '';
-			if( typeof getComputedStyle != 'undefined' )
-				computedDisplay = window.getComputedStyle(element).display;
-			else if( typeof element.currentStyle != 'undefined' )
-				computedDisplay = element.currentStyle['display'];
-			if( 'none' == computedDisplay || 'fixed' == computedDisplay || 'absolute' == computedDisplay )
-				return false;
-		}
 		return true;
 	};
 
@@ -75,14 +38,15 @@
 	$.chaosModalLoading = null;
 	$.modalMask = null;
 	$.chaosModalCurrent = null;
+	$.chaosModalAlwaysAtTop = false;
 	$.chaosModalMaxWidth = 0;
 	$.chaosModalZIndex = 100000;
 	$.chaosModalIndex = 0;
-	$.chaosModalImagesLoaded = false;
-	$.chaosModalIframesLoaded = false;
-	$.chaosModalVideosLoaded = false;
+	$.chaosModalImagesToLoad = false;
+	$.chaosModalIframesToLoad = false;
+	$.chaosModalVideosToLoad = false;
 	$.chaosModalClickTimer = false;
-	$.chaosModalResizeTimer = null;
+	$.chaosModalResizeFrame = null;
 	$.chaosModalPrintCSSElements = null;
 
 	$.fn.openModal = function( options ) {
@@ -103,10 +67,13 @@
 			cssClass = options['cssClass'],
 			closeLink = options['closeLink'],
 			printLink = options['printLink'],
-			alwaysAtTop = options['alwaysAtTop'],
 			galleryPrevLink = options['galleryPrevLink'],
 			galleryNextLink = options['galleryNextLink'];
 			galleryLinkAreas = options['galleryLinkAreas'];
+		
+		//Update $.chaosModalAlwaysAtTop
+		$.chaosModalAlwaysAtTop = options['alwaysAtTop'];
+		
 		//Update $.chaosModalMaxWidth
 		$.chaosModalMaxWidth = options['maxWidth'];
 		
@@ -125,18 +92,18 @@
 		
 		//Write close link if none exists
 		if(closeLink)
-			clone.prepend('<a class="close-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: -1em; right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10006;</a>');
+			clone.prepend('<a class="close-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: -1em; right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10005;&#xFE0E;</a>');
 
 		clone.append('<div style="clear: both;"></div>');
 
 		if(galleryPrevLink) {
-			clone.append('<a class="prev-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: calc(50% - 1em); left: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10094;</a>');
+			clone.append('<a class="prev-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: calc(50% - 1em); left: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10094;&#xFE0E;</a>');
 			if(galleryLinkAreas)
 				clone.append('<a class="prev-link area" style="display: block; position: absolute; top: 0; left: 0; width: 20%; height: 100%;"></a>');
 		}
 
 		if(galleryNextLink) {
-			clone.append('<a class="next-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: calc(50% - 1em); right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10095;</a>');
+			clone.append('<a class="next-link" style="display: block; box-sizing: border-box; position: absolute; z-index: 10; top: calc(50% - 1em); right: -1em; width: 2em; height: 2em; border: 0.2em solid #fff; border-radius: 100%; color: #fff; background: #000; text-align: center; font-size: 15px; line-height: 1.6em; text-decoration: none;">&#10095;&#xFE0E;</a>');
 			if(galleryLinkAreas)
 				clone.append('<a class="next-link area" style="display: block; position: absolute; top: 0; right: 0; width: 80%; height: 100%;"></a>');
 		}
@@ -232,7 +199,7 @@
 			clone.hide();
 			
 			//Calculate the modal mask size and popup window position
-			clone.resizeModal( alwaysAtTop );
+			clone.resizeModal();
 			
 			//Bind the print link events if any close links exist
 			if(clone.find('.print-link').length > 0) {
@@ -265,8 +232,12 @@
 			$.modalMask.stop();
 			clone.show(0, function() {
 				//Bind the window resize event
-				clone.resizeModal( alwaysAtTop );
-				windowElement.on('resize', {'alwaysAtTop': alwaysAtTop}, resizeCurrentModalEvent);
+				clone.resizeModal();
+				var events = [ 'resize', 'load', 'transitionend', 'animationend' ];
+				for(i = 0; i < events.length; i++) {
+					windowElement.on( events[i], {}, resizeCurrentModalEvent );
+				}
+				
 				$.fn.closeLoading();
 
 				if( options.clickPassthrough ) {
@@ -295,12 +266,7 @@
 		};
 		
 		var isIframeNotLoaded = function( index, iframe ) {
-			if( IEEdgeVersion ) //Ignore Iframes in IE due to security restrictions.
-				return false;
 			if (!$.chaosModalIsVisible(iframe))
-				return false;
-			var iframeDocument = iframe.contentDocument || iframe.contentWindow.document
-			if ('complete' == iframeDocument.readyState)
 				return false;
 			return true;
 		};
@@ -319,26 +285,37 @@
 		var images = clone.find('img').filter(isImageNotLoaded),
 			iframes = clone.find('iframe').filter(isIframeNotLoaded),
 			videos = clone.find('video').filter(isVideoNotLoaded);
-		$.imagesToLoad = images.length;
-		$.iframesToLoad = iframes.length;
-		$.videosToLoad = videos.length;
+		$.chaosModalImagesToLoad = images.length;
+		$.chaosModalIframesToLoad = iframes.length;
+		$.chaosModalVideosToLoad = videos.length;
 
-		if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
+		if(!$.chaosModalImagesToLoad && !$.chaosModalIframesToLoad &&  !$.chaosModalVideosToLoad)
 			showModal();
 		else {
 			images.on('load', function() {
-				$.imagesToLoad -= 1;
-				if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
+				$.chaosModalImagesToLoad -= 1;
+				if(!$.chaosModalImagesToLoad && !$.chaosModalIframesToLoad &&  !$.chaosModalVideosToLoad)
 					showModal();
 			});
-			iframes.on('load', function() {
-				$.iframesToLoad -= 1;
-				if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
+
+			// Ensure the load event is run for each iframe by refreshing its contents
+			iframes.each( function( index, iframe ) {
+				iframe.dataset.src = iframe.src;
+				iframe.src = 'about:blank';
+			});
+			iframes.on('load', function( e ) {
+				$.chaosModalIframesToLoad -= 1;
+				if(!$.chaosModalImagesToLoad && !$.chaosModalIframesToLoad &&  !$.chaosModalVideosToLoad)
 					showModal();
 			});
+			iframes.each( function( index, iframe ) {
+				iframe.src = iframe.dataset.src;
+				delete iframe.dataset.src;
+			});
+			
 			videos.on('canplay', function() {
-				$.videosToLoad -= 1;
-				if(!$.imagesToLoad && !$.iframesToLoad &&  !$.videosToLoad)
+				$.chaosModalVideosToLoad -= 1;
+				if(!$.chaosModalImagesToLoad && !$.chaosModalIframesToLoad &&  !$.chaosModalVideosToLoad)
 					showModal();
 			});
 		}
@@ -350,8 +327,11 @@
 
 	$.fn.closeModal = function() {
 		//Unbind the window resize event
-		clearTimeout($.chaosModalResizeTimer);
-		$(window).off('resize', resizeCurrentModalEvent);
+		cancelAnimationFrame( $.chaosModalResizeFrame );
+		var events = [ 'resize', 'load', 'transitionend', 'animationend' ];
+		for(i = 0; i < events.length; i++) {
+			$(window).on( events[i], resizeCurrentModalEvent );
+		}
 		//Clear $.chaosModalCurrent
 		$.chaosModalCurrent = null;
 		
@@ -370,18 +350,15 @@
 		return this;
 	};
 	
-	$.fn.resizeModal = function( alwaysAtTop ) {
+	$.fn.resizeModal = function( alwaysAtTop = $.chaosModalAlwaysAtTop ) {
 		var documentElement = $(document),
 			windowElement = $(window),
 			winH = windowElement.height(), //Get the window height and width
 			winW = windowElement.width();
-
-		//Resize iframes (if jquery.iframe-wrapper.js is present)
-		if( $.isFunction( this.resizeIframes ) ) { this.resizeIframes(); }
-
+		
 		//Calculate popup window position
 		var modalTop = winH/2-this.outerHeight()/2,
-			minModalSpace = Math.min( winW * 0.1, winH * 0.1 );
+			minModalSpace = Math.min( winW * 0.1, winH * 0.1, 50 );
 
 		//Check for invalid window positions
 		if( modalTop < 0 ) { modalTop = minModalSpace; }
@@ -418,27 +395,15 @@
 	};
 	
 	function resizeCurrentModalEvent(e) {
-		clearTimeout($.chaosModalResizeTimer);
-
+		cancelAnimationFrame( $.chaosModalResizeFrame );
 		if( $.chaosModalCurrent ) {}
 		else { return; }
-		
-		var alwaysAtTop = false;
-		if( e.data.alwaysAtTop ) { alwaysAtTop = e.data.alwaysAtTop; }
-		$.chaosModalResizeTimer = setTimeout(resizeCurrentModal, 16, alwaysAtTop);
-		// -----------------------^^
-		// Note: 15.6 milliseconds is lowest "safe"
-		// duration for setTimeout and setInterval.
-		//
-		// http://www.nczonline.net/blog/2011/12/14/timer-resolution-in-browsers
-		$.chaosModalCurrent.resizeModal( alwaysAtTop );
+
+		$.chaosModalResizeFrame = requestAnimationFrame( resizeCurrentModal ); //Run event handler when not busy
 	}
 
-	function resizeCurrentModal(alwaysAtTop) {
-		//IE Fix
-		clearTimeout($.chaosModalResizeTimer);
-
-		$.chaosModalCurrent.resizeModal( alwaysAtTop );
+	function resizeCurrentModal() {
+		$.chaosModalCurrent.resizeModal();
 	}
 
 	function closeCurrentModal(e) {
@@ -449,7 +414,7 @@
 			}
 		}
 
-		clearTimeout( $.chaosModalClickTimer );
+		cancelAnimationFrame( $.chaosModalResizeFrame );
 		$(document).off('.chaosmodal');
 		if($.chaosModalCurrent != null)
 			$.chaosModalCurrent.closeModal();
@@ -495,9 +460,7 @@
 
 		var documentElement = $(document),
 			windowElement = $(window),
-			htmlElement = $('html'),
-			maskHeight = documentElement.height(), //Get the screen height and width
-			maskWidth = htmlElement.width();
+			htmlElement = $('html');
 		
 		//Bind close event to mask click and when the ESC key is pressed
 		if(maskClose) {
@@ -505,38 +468,9 @@
 			documentElement.on('keyup.chaosmodal', closeOnESC);
 		}
 
-		//Check for invalid mask dimensions
-		if(maskHeight < this.height()) { maskHeight = this.height(); }
-		if(maskWidth < winW) { maskWidth = winW; }
-
-		//Set height and width to mask to fill up the whole screen
-		$('#chaos-modal-mask').css({'width':maskWidth,'height':maskHeight});
-
 		//Sets positioning for the loading bar
 		$('body').append('<div id="modal-loading" style="position: fixed; z-index: ' + ( $.chaosModalZIndex + 1 ) + '; color: #fff;">Loading</div>');
 		
-		//Center Loading
-		posx = (winW / 2) - parseInt($('#modal-loading').css('width')) / 2;
-		posy = (winH / 2) - parseInt($('#modal-loading').css('height')) / 2;
-		
-		$.chaosModalLoading = $('#modal-loading');
-		$.chaosModalLoading.css('top', posy);
-		$.chaosModalLoading.css('left', posx);
-		var alwaysAtTop = true;
-		windowElement.on('resize', {'alwaysAtTop': alwaysAtTop}, resizeLoading);	
-	}
-
-	function resizeLoading(){
-		var documentElement = $(document),
-			windowElement = $(window),
-			htmlElement = $('html'),
-			maskHeight = documentElement.height(), //Get the screen height and width
-			maskWidth = htmlElement.width(),
-			winH = windowElement.height(), //Get the window height and width
-			winW = windowElement.width();
-
-		$('#chaos-modal-mask').css({'width':maskWidth,'height':maskHeight});
-
 		//Center Loading
 		posx = (winW / 2) - parseInt($('#modal-loading').css('width')) / 2;
 		posy = (winH / 2) - parseInt($('#modal-loading').css('height')) / 2;
